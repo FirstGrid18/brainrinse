@@ -77,8 +77,8 @@ function drawCypress(
 
 function drawScene(ctx: CanvasRenderingContext2D, w: number, h: number) {
   // ── Layout constants ──────────────────────────────────────────────────────
-  const borderY  = h * 0.64           // gold strip top edge
-  const borderH  = h * 0.022          // gold strip height
+  const borderY  = h * 0.55           // gold strip top edge (sky = top 55%)
+  const borderH  = 8                  // gold strip height (fixed 8px)
   const floorY   = borderY + borderH  // tile floor starts here
 
   // Arch geometry
