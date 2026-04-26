@@ -50,7 +50,7 @@ export default function UnlockModal({ onClose }: Props) {
           More to still the mind.
         </div>
         <div style={{ fontSize: '0.85rem', opacity: 0.55, letterSpacing: '0.12em', marginBottom: 28 }}>
-          ALL 6 GAMES, ALWAYS
+          ALL 6 GAMES · CANCEL ANYTIME
         </div>
 
         {/* Game list */}
@@ -95,7 +95,7 @@ export default function UnlockModal({ onClose }: Props) {
                 transition: 'background 0.2s',
               }}
             >
-              {isYearly ? '£48 / year' : '£5 / month'}
+              {isYearly ? '£36 / year' : '£3.99 / month'}
               {isYearly && (
                 <span style={{ display: 'block', fontSize: '0.65rem', opacity: 0.7, marginTop: 1 }}>
                   saves £12
@@ -123,7 +123,7 @@ export default function UnlockModal({ onClose }: Props) {
             marginBottom: 10,
           }}
         >
-          Join the waitlist
+          GET ACCESS
         </button>
 
         <button
