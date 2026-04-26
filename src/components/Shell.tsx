@@ -162,11 +162,13 @@ export default function Shell({ lightMode, onToggleLight }: Props) {
           </button>
         </div>
 
-        {/* Tab row */}
+        {/* Game card scroll row */}
         <div
-          className="flex overflow-x-auto"
+          className="flex overflow-x-auto gap-3 px-4 pb-4"
           style={{
-            borderTop: `1px solid ${lightMode ? 'rgba(0,0,0,0.06)' : 'rgba(237,226,206,0.06)'}`,
+            borderTop: `1px solid rgba(237,226,206,0.06)`,
+            paddingTop: 12,
+            scrollbarWidth: 'none',
           }}
         >
           {GAMES.map(game => {
@@ -179,29 +181,42 @@ export default function Shell({ lightMode, onToggleLight }: Props) {
                   else setShowUnlock(true)
                 }}
                 style={{
-                  flex: '1 1 0',
-                  minWidth: 0,
-                  padding: '10px 4px 8px',
-                  fontFamily: "'Cormorant Garamond', serif",
-                  fontSize: 'clamp(0.55rem, 1.8vw, 0.7rem)',
-                  letterSpacing: '0.16em',
-                  color: isActive
-                    ? terracotta
-                    : game.free
-                    ? textColor
-                    : lightMode ? 'rgba(0,0,0,0.3)' : 'rgba(237,226,206,0.3)',
-                  background: 'transparent',
-                  border: 'none',
-                  borderTop: isActive ? `2px solid ${terracotta}` : '2px solid transparent',
+                  flexShrink: 0,
+                  width: 120,
+                  padding: '14px 12px 12px',
+                  background: '#1a1008',
+                  border: `1px solid ${isActive ? terracotta : 'rgba(237,226,206,0.08)'}`,
+                  borderRadius: 8,
                   cursor: 'pointer',
-                  textTransform: 'uppercase',
-                  whiteSpace: 'nowrap',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  transition: 'color 0.2s, border-color 0.2s',
+                  textAlign: 'left',
+                  transition: 'border-color 0.2s',
                 }}
               >
-                {game.label}
+                <div
+                  style={{
+                    fontFamily: "'Cormorant Garamond', serif",
+                    fontSize: 13,
+                    fontWeight: 400,
+                    letterSpacing: '0.1em',
+                    color: 'rgba(237,226,206,0.88)',
+                    textTransform: 'uppercase',
+                    marginBottom: 8,
+                    lineHeight: 1.2,
+                  }}
+                >
+                  {game.label}
+                </div>
+                <div
+                  style={{
+                    fontFamily: "'Cormorant Garamond', serif",
+                    fontSize: 10,
+                    letterSpacing: '0.18em',
+                    textTransform: 'uppercase',
+                    color: game.free ? '#8aaa78' : 'rgba(237,226,206,0.28)',
+                  }}
+                >
+                  {game.free ? 'FREE' : 'LOCKED'}
+                </div>
               </button>
             )
           })}
