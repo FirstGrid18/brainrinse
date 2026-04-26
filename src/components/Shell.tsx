@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react'
 import PowerWash from './games/PowerWash'
+import UnlockModal from './UnlockModal'
 
 const GAMES = [
   { id: 'powerwash', label: 'POWER WASH', free: true },
@@ -19,6 +20,7 @@ export default function Shell({ lightMode, onToggleLight }: Props) {
   const [activeGame, setActiveGame] = useState('powerwash')
   const [soundEnabled, setSoundEnabled] = useState(true)
   const [progress, setProgress] = useState(0)
+  const [showUnlock, setShowUnlock] = useState(false)
 
   const handleProgress = useCallback((pct: number) => {
     setProgress(pct)
@@ -134,6 +136,7 @@ export default function Shell({ lightMode, onToggleLight }: Props) {
           </div>
 
           <button
+            onClick={() => setShowUnlock(true)}
             style={{
               border: `1px solid ${terracotta}`,
               color: terracotta,
@@ -165,7 +168,10 @@ export default function Shell({ lightMode, onToggleLight }: Props) {
             return (
               <button
                 key={game.id}
-                onClick={() => game.free && setActiveGame(game.id)}
+                onClick={() => {
+                  if (game.free) setActiveGame(game.id)
+                  else setShowUnlock(true)
+                }}
                 style={{
                   flex: '1 1 0',
                   minWidth: 0,
@@ -181,7 +187,7 @@ export default function Shell({ lightMode, onToggleLight }: Props) {
                   background: 'transparent',
                   border: 'none',
                   borderTop: isActive ? `2px solid ${terracotta}` : '2px solid transparent',
-                  cursor: game.free ? 'pointer' : 'default',
+                  cursor: 'pointer',
                   textTransform: 'uppercase',
                   whiteSpace: 'nowrap',
                   overflow: 'hidden',
@@ -198,6 +204,7 @@ export default function Shell({ lightMode, onToggleLight }: Props) {
           })}
         </div>
       </div>
+      {showUnlock && <UnlockModal onClose={() => setShowUnlock(false)} />}
     </div>
   )
 }

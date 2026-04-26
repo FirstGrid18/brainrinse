@@ -9,117 +9,186 @@ interface Props {
 const MAX_WIDTH = 800
 const RATIO = 3 / 4
 
+function archPath(ctx: CanvasRenderingContext2D, archX: number, archBaseY: number, archRadius: number, archW: number, h: number) {
+  ctx.beginPath()
+  ctx.moveTo(archX, h)
+  ctx.lineTo(archX, archBaseY)
+  ctx.arc(archX + archRadius, archBaseY, archRadius, Math.PI, 0)
+  ctx.lineTo(archX + archW, h)
+  ctx.closePath()
+}
+
 function drawScene(ctx: CanvasRenderingContext2D, w: number, h: number) {
-  // Sky gradient
-  const sky = ctx.createLinearGradient(0, 0, 0, h * 0.62)
-  sky.addColorStop(0, '#6b1a1a')
-  sky.addColorStop(0.35, '#c94a1e')
-  sky.addColorStop(0.65, '#e07b2a')
-  sky.addColorStop(1, '#f5c842')
-  ctx.fillStyle = sky
+  const archW = w * 0.72
+  const archX = (w - archW) / 2
+  const archBaseY = h * 0.56
+  const archRadius = archW / 2
+  const frameColor = '#c8944a'
+  const frameW = w * 0.045
+
+  // --- 1. Wall background (outside the arch) ---
+  const wallGrad = ctx.createLinearGradient(0, 0, 0, h)
+  wallGrad.addColorStop(0, '#2a1808')
+  wallGrad.addColorStop(1, '#1a0e06')
+  ctx.fillStyle = wallGrad
   ctx.fillRect(0, 0, w, h)
 
-  // Sun
-  const sunX = w * 0.78
-  const sunY = h * 0.18
-  const sunR = w * 0.06
-  const sunGlow = ctx.createRadialGradient(sunX, sunY, 0, sunX, sunY, sunR * 2.5)
-  sunGlow.addColorStop(0, 'rgba(255,240,100,0.9)')
-  sunGlow.addColorStop(0.4, 'rgba(255,200,50,0.4)')
-  sunGlow.addColorStop(1, 'rgba(255,160,0,0)')
+  // Wall texture — subtle noise patches
+  ctx.save()
+  for (let i = 0; i < 60; i++) {
+    const wx = Math.random() * w
+    const wy = Math.random() * h
+    const wr = Math.random() * 40 + 10
+    const wg = ctx.createRadialGradient(wx, wy, 0, wx, wy, wr)
+    wg.addColorStop(0, `rgba(${60 + Math.random() * 30},${30 + Math.random() * 20},${10 + Math.random() * 10},0.18)`)
+    wg.addColorStop(1, 'rgba(0,0,0,0)')
+    ctx.fillStyle = wg
+    ctx.fillRect(wx - wr, wy - wr, wr * 2, wr * 2)
+  }
+  ctx.restore()
+
+  // --- 2. Inside the arch: sky, sun, trees ---
+  ctx.save()
+  archPath(ctx, archX, archBaseY, archRadius, archW, h * 0.62)
+  ctx.clip()
+
+  // Sky gradient
+  const sky = ctx.createLinearGradient(0, 0, 0, archBaseY)
+  sky.addColorStop(0, '#5c1010')
+  sky.addColorStop(0.3, '#c03a18')
+  sky.addColorStop(0.65, '#e07228')
+  sky.addColorStop(1, '#f0b830')
+  ctx.fillStyle = sky
+  ctx.fillRect(archX, 0, archW, archBaseY + archRadius)
+
+  // Sun glow
+  const sunX = archX + archW * 0.76
+  const sunY = archBaseY * 0.22
+  const sunR = archW * 0.065
+  const sunGlow = ctx.createRadialGradient(sunX, sunY, 0, sunX, sunY, sunR * 3)
+  sunGlow.addColorStop(0, 'rgba(255,248,180,1)')
+  sunGlow.addColorStop(0.25, 'rgba(255,210,60,0.7)')
+  sunGlow.addColorStop(0.6, 'rgba(255,160,20,0.25)')
+  sunGlow.addColorStop(1, 'rgba(255,120,0,0)')
   ctx.fillStyle = sunGlow
   ctx.beginPath()
-  ctx.arc(sunX, sunY, sunR * 2.5, 0, Math.PI * 2)
+  ctx.arc(sunX, sunY, sunR * 3, 0, Math.PI * 2)
   ctx.fill()
   ctx.fillStyle = '#fff8c0'
   ctx.beginPath()
   ctx.arc(sunX, sunY, sunR, 0, Math.PI * 2)
   ctx.fill()
 
-  // Arch cutout (clip everything to arch shape)
-  const archW = w * 0.72
-  const archX = (w - archW) / 2
-  const archBaseY = h * 0.62
-  const archRadius = archW / 2
+  // Horizon haze
+  const haze = ctx.createLinearGradient(0, archBaseY * 0.72, 0, archBaseY)
+  haze.addColorStop(0, 'rgba(240,170,60,0)')
+  haze.addColorStop(1, 'rgba(240,170,60,0.22)')
+  ctx.fillStyle = haze
+  ctx.fillRect(archX, archBaseY * 0.72, archW, archBaseY * 0.28)
 
-  ctx.save()
-  ctx.beginPath()
-  // Arch: rectangle bottom + semicircle top
-  ctx.moveTo(archX, h)
-  ctx.lineTo(archX, archBaseY)
-  ctx.arc(archX + archRadius, archBaseY, archRadius, Math.PI, 0)
-  ctx.lineTo(archX + archW, h)
-  ctx.closePath()
-  // We don't clip — the arch frame is drawn around the scene
-
-  // Tree silhouettes
-  const treeY = h * 0.56
-  const treeColor = '#1a0f00'
-  const trees = [
-    { x: w * 0.08, h: h * 0.22, w: w * 0.04 },
-    { x: w * 0.16, h: h * 0.30, w: w * 0.05 },
-    { x: w * 0.26, h: h * 0.18, w: w * 0.035 },
-    { x: w * 0.68, h: h * 0.25, w: w * 0.04 },
-    { x: w * 0.78, h: h * 0.32, w: w * 0.05 },
-    { x: w * 0.88, h: h * 0.20, w: w * 0.04 },
+  // Tree silhouettes along horizon
+  const treeBaseY = archBaseY * 0.88
+  const treeColor = '#0e0600'
+  type TreeDef = { x: number; th: number; tw: number }
+  const trees: TreeDef[] = [
+    { x: archX + archW * 0.06, th: archBaseY * 0.28, tw: archW * 0.045 },
+    { x: archX + archW * 0.18, th: archBaseY * 0.38, tw: archW * 0.055 },
+    { x: archX + archW * 0.30, th: archBaseY * 0.22, tw: archW * 0.038 },
+    { x: archX + archW * 0.62, th: archBaseY * 0.30, tw: archW * 0.045 },
+    { x: archX + archW * 0.76, th: archBaseY * 0.40, tw: archW * 0.055 },
+    { x: archX + archW * 0.90, th: archBaseY * 0.24, tw: archW * 0.042 },
   ]
   trees.forEach(t => {
     ctx.fillStyle = treeColor
     // Trunk
-    ctx.fillRect(t.x - t.w * 0.15, treeY - t.h, t.w * 0.3, t.h)
-    // Canopy (triangle-ish)
+    const trunkW = t.tw * 0.22
+    ctx.fillRect(t.x - trunkW / 2, treeBaseY - t.th * 0.5, trunkW, t.th * 0.5)
+    // Upper canopy
     ctx.beginPath()
-    ctx.moveTo(t.x - t.w * 0.6, treeY - t.h * 0.5)
-    ctx.lineTo(t.x, treeY - t.h * 1.35)
-    ctx.lineTo(t.x + t.w * 0.6, treeY - t.h * 0.5)
+    ctx.moveTo(t.x - t.tw * 0.55, treeBaseY - t.th * 0.45)
+    ctx.lineTo(t.x, treeBaseY - t.th * 1.4)
+    ctx.lineTo(t.x + t.tw * 0.55, treeBaseY - t.th * 0.45)
     ctx.closePath()
     ctx.fill()
+    // Lower canopy (wider)
     ctx.beginPath()
-    ctx.moveTo(t.x - t.w * 0.5, treeY - t.h * 0.85)
-    ctx.lineTo(t.x, treeY - t.h * 1.6)
-    ctx.lineTo(t.x + t.w * 0.5, treeY - t.h * 0.85)
+    ctx.moveTo(t.x - t.tw * 0.75, treeBaseY - t.th * 0.18)
+    ctx.lineTo(t.x, treeBaseY - t.th * 0.92)
+    ctx.lineTo(t.x + t.tw * 0.75, treeBaseY - t.th * 0.18)
     ctx.closePath()
     ctx.fill()
   })
+
   ctx.restore()
 
-  // Arch frame
+  // --- 3. Arch frame (drawn on top of the clip area) ---
   ctx.save()
-  const frameColor = '#d4a76a'
-  const frameW = w * 0.04
 
   // Left pillar
   ctx.fillStyle = frameColor
-  ctx.fillRect(archX - frameW, h * 0.58, frameW, h * 0.42)
+  ctx.fillRect(archX - frameW, archBaseY - frameW * 0.5, frameW, h - archBaseY + frameW * 0.5)
   // Right pillar
-  ctx.fillRect(archX + archW, h * 0.58, frameW, h * 0.42)
+  ctx.fillRect(archX + archW, archBaseY - frameW * 0.5, frameW, h - archBaseY + frameW * 0.5)
 
-  // Arch border (ring)
+  // Arch ring — outer
   ctx.strokeStyle = frameColor
   ctx.lineWidth = frameW
   ctx.beginPath()
   ctx.arc(archX + archRadius, archBaseY, archRadius + frameW / 2, Math.PI, 0)
   ctx.stroke()
 
-  // Decorative arch detail: inner ring
-  ctx.strokeStyle = '#b8833a'
-  ctx.lineWidth = frameW * 0.3
+  // Arch ring — inner decorative line
+  ctx.strokeStyle = '#a06830'
+  ctx.lineWidth = frameW * 0.22
   ctx.beginPath()
-  ctx.arc(archX + archRadius, archBaseY, archRadius - frameW * 0.6, Math.PI, 0)
+  ctx.arc(archX + archRadius, archBaseY, archRadius - frameW * 0.65, Math.PI, 0)
   ctx.stroke()
+
+  // Outer decorative line
+  ctx.strokeStyle = '#e0b870'
+  ctx.lineWidth = frameW * 0.18
+  ctx.beginPath()
+  ctx.arc(archX + archRadius, archBaseY, archRadius + frameW * 1.1, Math.PI, 0)
+  ctx.stroke()
+
+  // Pillar edge highlights
+  ctx.strokeStyle = '#e0b870'
+  ctx.lineWidth = 1.5
+  ctx.beginPath()
+  ctx.moveTo(archX - frameW, archBaseY)
+  ctx.lineTo(archX - frameW, h)
+  ctx.stroke()
+  ctx.beginPath()
+  ctx.moveTo(archX + archW + frameW, archBaseY)
+  ctx.lineTo(archX + archW + frameW, h)
+  ctx.stroke()
+
   ctx.restore()
 
-  // Gold border strip between arch and floor
+  // --- 4. Gold border strip ---
   const borderY = h * 0.62
-  const borderH = h * 0.03
+  const borderH = h * 0.028
   const grad = ctx.createLinearGradient(0, borderY, 0, borderY + borderH)
   grad.addColorStop(0, '#d4a020')
   grad.addColorStop(0.5, '#f0c040')
-  grad.addColorStop(1, '#c08820')
+  grad.addColorStop(1, '#b07818')
   ctx.fillStyle = grad
   ctx.fillRect(0, borderY, w, borderH)
 
-  // Tiled floor
+  // Gold border fine lines
+  ctx.strokeStyle = '#f8d860'
+  ctx.lineWidth = 1
+  ctx.beginPath()
+  ctx.moveTo(0, borderY + 1)
+  ctx.lineTo(w, borderY + 1)
+  ctx.stroke()
+  ctx.strokeStyle = '#8a5c10'
+  ctx.beginPath()
+  ctx.moveTo(0, borderY + borderH - 1)
+  ctx.lineTo(w, borderY + borderH - 1)
+  ctx.stroke()
+
+  // --- 5. Tiled floor ---
   const floorY = borderY + borderH
   const floorH = h - floorY
   const tileSize = w / 8
@@ -130,41 +199,57 @@ function drawScene(ctx: CanvasRenderingContext2D, w: number, h: number) {
       const tx = col * tileSize
       const ty = floorY + row * tileSize
       const isEven = (row + col) % 2 === 0
-      ctx.fillStyle = isEven ? '#e8d9b8' : '#3a7a78'
+      ctx.fillStyle = isEven ? '#e2d4b0' : '#2e6a68'
       ctx.fillRect(tx, ty, tileSize, tileSize)
 
-      // Tile inner detail
-      const inset = tileSize * 0.12
+      const inset = tileSize * 0.11
       if (isEven) {
-        ctx.strokeStyle = '#c8b890'
+        // Inner border
+        ctx.strokeStyle = '#c0a070'
         ctx.lineWidth = 1
         ctx.strokeRect(tx + inset, ty + inset, tileSize - inset * 2, tileSize - inset * 2)
-        // Corner accents
+        // Terracotta corner accents
         ctx.fillStyle = '#b84828'
-        const as = tileSize * 0.08
-        ctx.fillRect(tx + inset * 0.5, ty + inset * 0.5, as, as)
-        ctx.fillRect(tx + tileSize - inset * 0.5 - as, ty + inset * 0.5, as, as)
-        ctx.fillRect(tx + inset * 0.5, ty + tileSize - inset * 0.5 - as, as, as)
-        ctx.fillRect(tx + tileSize - inset * 0.5 - as, ty + tileSize - inset * 0.5 - as, as, as)
+        const as = tileSize * 0.09
+        ctx.fillRect(tx + inset * 0.4, ty + inset * 0.4, as, as)
+        ctx.fillRect(tx + tileSize - inset * 0.4 - as, ty + inset * 0.4, as, as)
+        ctx.fillRect(tx + inset * 0.4, ty + tileSize - inset * 0.4 - as, as, as)
+        ctx.fillRect(tx + tileSize - inset * 0.4 - as, ty + tileSize - inset * 0.4 - as, as, as)
+        // Centre dot
+        ctx.fillStyle = '#c8a870'
+        const ds = tileSize * 0.06
+        ctx.fillRect(tx + tileSize / 2 - ds / 2, ty + tileSize / 2 - ds / 2, ds, ds)
       } else {
-        ctx.strokeStyle = '#2a5a58'
+        // Inner border
+        ctx.strokeStyle = '#1e5250'
         ctx.lineWidth = 1
         ctx.strokeRect(tx + inset, ty + inset, tileSize - inset * 2, tileSize - inset * 2)
-        // Geometric centre pattern
-        ctx.strokeStyle = '#4a9a98'
+        // Diamond geometric pattern
+        ctx.strokeStyle = '#4aaca8'
+        ctx.lineWidth = 1
         ctx.beginPath()
-        ctx.moveTo(tx + tileSize / 2, ty + inset * 1.5)
-        ctx.lineTo(tx + tileSize - inset * 1.5, ty + tileSize / 2)
-        ctx.lineTo(tx + tileSize / 2, ty + tileSize - inset * 1.5)
-        ctx.lineTo(tx + inset * 1.5, ty + tileSize / 2)
+        ctx.moveTo(tx + tileSize / 2, ty + inset * 1.4)
+        ctx.lineTo(tx + tileSize - inset * 1.4, ty + tileSize / 2)
+        ctx.lineTo(tx + tileSize / 2, ty + tileSize - inset * 1.4)
+        ctx.lineTo(tx + inset * 1.4, ty + tileSize / 2)
         ctx.closePath()
         ctx.stroke()
+        // Centre diamond fill
+        ctx.fillStyle = '#3a8a88'
+        const cs = tileSize * 0.07
+        ctx.beginPath()
+        ctx.moveTo(tx + tileSize / 2, ty + tileSize / 2 - cs)
+        ctx.lineTo(tx + tileSize / 2 + cs, ty + tileSize / 2)
+        ctx.lineTo(tx + tileSize / 2, ty + tileSize / 2 + cs)
+        ctx.lineTo(tx + tileSize / 2 - cs, ty + tileSize / 2)
+        ctx.closePath()
+        ctx.fill()
       }
     }
   }
 
-  // Tile grid lines
-  ctx.strokeStyle = '#c0a860'
+  // Tile grout lines
+  ctx.strokeStyle = '#b89850'
   ctx.lineWidth = 1.5
   for (let col = 1; col < 8; col++) {
     ctx.beginPath()
