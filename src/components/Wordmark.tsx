@@ -1,45 +1,63 @@
 interface Props {
   lightMode: boolean
   paused?: boolean
-  size?: number   // square size in px (default 9)
-  gap?: number    // gap in px (default 3)
+  onGridClick?: () => void
+  size?: number
+  gap?: number
 }
 
-// Diagonal stagger: squares along the same top-left→bottom-right diagonal
-// pulse together. 5 diagonals over a 2.4s cycle = 0.48s per step.
 const STAGGER = 0.48
 
-export default function Wordmark({ lightMode, paused = false, size = 9, gap = 3 }: Props) {
+export default function Wordmark({ lightMode, paused = false, onGridClick, size = 9, gap = 3 }: Props) {
+  const grid = (
+    <div style={{
+      display: 'grid',
+      gridTemplateColumns: `repeat(3, ${size}px)`,
+      gap: `${gap}px`,
+      flexShrink: 0,
+    }}>
+      {Array.from({ length: 9 }, (_, i) => {
+        const row = Math.floor(i / 3)
+        const col = i % 3
+        const isTerracotta = (row + col) % 2 === 0
+        const delay = (row + col) * STAGGER
+        return (
+          <div key={i} style={{
+            width: size,
+            height: size,
+            background: isTerracotta
+              ? '#b84828'
+              : lightMode ? 'rgba(24,12,4,0.45)' : 'rgba(237,226,206,0.72)',
+            animation: `gridPulse 2.4s ease-in-out ${delay}s infinite`,
+            animationPlayState: paused ? 'paused' : 'running',
+          }} />
+        )
+      })}
+    </div>
+  )
+
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-      {/* 3×3 checkerboard grid mark */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: `repeat(3, ${size}px)`,
-        gap: `${gap}px`,
-        flexShrink: 0,
-      }}>
-        {Array.from({ length: 9 }, (_, i) => {
-          const row = Math.floor(i / 3)
-          const col = i % 3
-          const isTerracotta = (row + col) % 2 === 0
-          const delay = (row + col) * STAGGER
-          return (
-            <div key={i} style={{
-              width: size,
-              height: size,
-              background: isTerracotta
-                ? '#b84828'
-                : lightMode ? 'rgba(24,12,4,0.45)' : 'rgba(237,226,206,0.72)',
-              animation: `gridPulse 2.4s ease-in-out ${delay}s infinite`,
-              animationPlayState: paused ? 'paused' : 'running',
-            }} />
-          )
-        })}
-      </div>
+      {/* Grid mark — clickable when onGridClick is provided */}
+      {onGridClick ? (
+        <button
+          onClick={onGridClick}
+          aria-label="Open game selector"
+          style={{
+            background: 'none',
+            border: 'none',
+            padding: 0,
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+          }}
+        >
+          {grid}
+        </button>
+      ) : grid}
 
-      {/* Text: brain rinse */}
-      <div style={{ lineHeight: 1, whiteSpace: 'nowrap' }}>
+      {/* Text — never interactive */}
+      <div style={{ lineHeight: 1, whiteSpace: 'nowrap', userSelect: 'none', pointerEvents: 'none' }}>
         <span style={{
           fontFamily: "'Cormorant Garamond', serif",
           fontSize: 28,
