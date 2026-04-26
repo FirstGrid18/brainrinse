@@ -4,6 +4,8 @@ import { useAudio } from '../../hooks/useAudio'
 interface Props {
   soundEnabled: boolean
   onProgress: (pct: number) => void
+  onPlayStart: () => void
+  onPlayEnd: () => void
 }
 
 
@@ -298,7 +300,7 @@ interface Particle {
   type: 'drop' | 'mist'
 }
 
-export default function PowerWash({ soundEnabled, onProgress }: Props) {
+export default function PowerWash({ soundEnabled, onProgress, onPlayStart, onPlayEnd }: Props) {
   const containerRef = useRef<HTMLDivElement>(null)
   const sceneRef = useRef<HTMLCanvasElement>(null)
   const grimeRef = useRef<HTMLCanvasElement>(null)
@@ -515,7 +517,8 @@ export default function PowerWash({ soundEnabled, onProgress }: Props) {
     const pos = getCanvasCoords(e.nativeEvent, canvas)
     lastPos.current = pos
     startSpray(soundEnabled)
-  }, [getCanvasCoords, startSpray, soundEnabled])
+    onPlayStart()
+  }, [getCanvasCoords, startSpray, soundEnabled, onPlayStart])
 
   const onPointerMove = useCallback((e: React.PointerEvent) => {
     if (!isPointerDown.current || completed.current) return
@@ -535,7 +538,8 @@ export default function PowerWash({ soundEnabled, onProgress }: Props) {
     isPointerDown.current = false
     lastPos.current = null
     stopSpray()
-  }, [stopSpray])
+    onPlayEnd()
+  }, [stopSpray, onPlayEnd])
 
   // Completion chime
   useEffect(() => {

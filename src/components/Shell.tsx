@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef } from 'react'
 import PowerWash from './games/PowerWash'
 import UnlockModal from './UnlockModal'
 
@@ -21,9 +21,21 @@ export default function Shell({ lightMode, onToggleLight }: Props) {
   const [soundEnabled, setSoundEnabled] = useState(true)
   const [progress, setProgress] = useState(0)
   const [showUnlock, setShowUnlock] = useState(false)
+  const [shelfHidden, setShelfHidden] = useState(false)
+  const shelfTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const handleProgress = useCallback((pct: number) => {
     setProgress(pct)
+  }, [])
+
+  const handlePlayStart = useCallback(() => {
+    if (shelfTimer.current) clearTimeout(shelfTimer.current)
+    setShelfHidden(true)
+  }, [])
+
+  const handlePlayEnd = useCallback(() => {
+    if (shelfTimer.current) clearTimeout(shelfTimer.current)
+    shelfTimer.current = setTimeout(() => setShelfHidden(false), 2000)
   }, [])
 
   const cream = 'rgba(237,226,206,0.88)'
@@ -46,7 +58,12 @@ export default function Shell({ lightMode, onToggleLight }: Props) {
       <div className="relative w-full" style={{ height: '72vh' }}>
         {/* Game canvas */}
         <div className="relative w-full h-full">
-          <PowerWash soundEnabled={soundEnabled} onProgress={handleProgress} />
+          <PowerWash
+            soundEnabled={soundEnabled}
+            onProgress={handleProgress}
+            onPlayStart={handlePlayStart}
+            onPlayEnd={handlePlayEnd}
+          />
 
           {/* Wordmark — overlaid top-left */}
           <div
@@ -65,43 +82,32 @@ export default function Shell({ lightMode, onToggleLight }: Props) {
 
           {/* Controls — overlaid top-right */}
           <div className="absolute top-3 right-3 flex gap-2">
-            {/* Sound toggle */}
-            <button
-              onClick={() => setSoundEnabled(v => !v)}
-              aria-label="Toggle sound"
-              style={{
-                background: 'rgba(12,8,6,0.45)',
-                border: '1px solid rgba(237,226,206,0.2)',
-                borderRadius: 6,
-                padding: '6px 10px',
-                color: cream,
-                cursor: 'pointer',
-                fontSize: 16,
-                lineHeight: 1,
-                backdropFilter: 'blur(4px)',
-              }}
-            >
-              {soundEnabled ? '🔊' : '🔇'}
-            </button>
-
-            {/* Light mode toggle */}
-            <button
-              onClick={onToggleLight}
-              aria-label="Toggle light mode"
-              style={{
-                background: 'rgba(12,8,6,0.45)',
-                border: '1px solid rgba(237,226,206,0.2)',
-                borderRadius: 6,
-                padding: '6px 10px',
-                color: cream,
-                cursor: 'pointer',
-                fontSize: 16,
-                lineHeight: 1,
-                backdropFilter: 'blur(4px)',
-              }}
-            >
-              {lightMode ? '🌙' : '☀️'}
-            </button>
+            {[
+              { label: soundEnabled ? 'SOUND ON' : 'SOUND OFF', onClick: () => setSoundEnabled(v => !v) },
+              { label: lightMode ? 'LIGHT' : 'DARK', onClick: onToggleLight },
+            ].map(btn => (
+              <button
+                key={btn.label}
+                onClick={btn.onClick}
+                style={{
+                  background: 'transparent',
+                  border: `1px solid ${terracotta}`,
+                  borderRadius: 20,
+                  padding: '6px 14px',
+                  color: 'rgba(237,226,206,0.8)',
+                  cursor: 'pointer',
+                  fontFamily: "'Cormorant Garamond', serif",
+                  fontSize: 11,
+                  letterSpacing: '0.14em',
+                  textTransform: 'uppercase',
+                  lineHeight: 1,
+                  backdropFilter: 'blur(4px)',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                {btn.label}
+              </button>
+            ))}
           </div>
 
           {/* Progress bar — 2px terracotta line along bottom of canvas */}
@@ -117,6 +123,8 @@ export default function Shell({ lightMode, onToggleLight }: Props) {
         style={{
           background: lightMode ? '#f0e6d6' : '#0c0806',
           borderTop: `1px solid ${lightMode ? 'rgba(0,0,0,0.08)' : 'rgba(237,226,206,0.08)'}`,
+          transform: shelfHidden ? 'translateY(100%)' : 'translateY(0)',
+          transition: 'transform 0.3s ease',
         }}
       >
         {/* Stats row */}
