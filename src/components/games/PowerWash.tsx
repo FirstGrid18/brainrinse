@@ -6,7 +6,6 @@ interface Props {
   onProgress: (pct: number) => void
 }
 
-const RATIO = 3 / 4
 
 function archPath(ctx: CanvasRenderingContext2D, archX: number, archBaseY: number, archRadius: number, archW: number, h: number) {
   ctx.beginPath()
@@ -267,9 +266,9 @@ function drawScene(ctx: CanvasRenderingContext2D, w: number, h: number) {
 function drawGrime(ctx: CanvasRenderingContext2D, w: number, h: number) {
   // Multi-layer grime for texture
   const g1 = ctx.createRadialGradient(w * 0.3, h * 0.4, 0, w * 0.5, h * 0.5, w * 0.8)
-  g1.addColorStop(0, 'rgba(28,18,10,0.94)')
-  g1.addColorStop(0.6, 'rgba(20,12,6,0.97)')
-  g1.addColorStop(1, 'rgba(10,6,2,1)')
+  g1.addColorStop(0, 'rgba(22,14,8,1)')
+  g1.addColorStop(0.6, 'rgba(16,10,4,1)')
+  g1.addColorStop(1, 'rgba(8,4,2,1)')
   ctx.fillStyle = g1
   ctx.fillRect(0, 0, w, h)
 
@@ -307,6 +306,7 @@ export default function PowerWash({ soundEnabled, onProgress }: Props) {
   const { startSpray, stopSpray, playChime } = useAudio()
 
   const isPointerDown = useRef(false)
+  const hasInteracted = useRef(false)
   const lastPos = useRef<{ x: number; y: number } | null>(null)
   const particles = useRef<Particle[]>([])
   const animFrame = useRef<number>(0)
@@ -419,6 +419,8 @@ export default function PowerWash({ soundEnabled, onProgress }: Props) {
     if (!ctx) return
     ctx.clearRect(0, 0, canvas.width, canvas.height)
 
+    if (!hasInteracted.current) return
+
     // Draw particles
     for (const p of particles.current) {
       const alpha = p.life / p.maxLife
@@ -466,7 +468,7 @@ export default function PowerWash({ soundEnabled, onProgress }: Props) {
     if (!container || !scene || !grime || !overlay) return
 
     const w = container.clientWidth
-    const h = Math.round(w * RATIO)
+    const h = container.clientHeight
 
     ;[scene, grime, overlay].forEach(c => {
       c.width = w
@@ -486,6 +488,7 @@ export default function PowerWash({ soundEnabled, onProgress }: Props) {
 
     completed.current = false
     completionShown.current = false
+    hasInteracted.current = false
     progressPct.current = 0
     particles.current = []
   }, [])
@@ -505,6 +508,7 @@ export default function PowerWash({ soundEnabled, onProgress }: Props) {
   // Pointer event handlers
   const onPointerDown = useCallback((e: React.PointerEvent) => {
     isPointerDown.current = true
+    hasInteracted.current = true
     const canvas = grimeRef.current
     if (!canvas) return
     ;(e.target as HTMLElement).setPointerCapture(e.pointerId)
@@ -553,15 +557,14 @@ export default function PowerWash({ soundEnabled, onProgress }: Props) {
   }, [playChime, soundEnabled])
 
   return (
-    <div ref={containerRef} className="relative w-full">
+    <div ref={containerRef} className="absolute inset-0">
       {/* Scene canvas */}
-      <canvas ref={sceneRef} className="block w-full" style={{ aspectRatio: '4/3' }} />
+      <canvas ref={sceneRef} className="absolute inset-0 w-full h-full block" />
 
       {/* Grime canvas — layered on top, handles interaction */}
       <canvas
         ref={grimeRef}
-        className="absolute inset-0 w-full cursor-crosshair touch-none"
-        style={{ aspectRatio: '4/3' }}
+        className="absolute inset-0 w-full h-full cursor-crosshair touch-none"
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
@@ -571,8 +574,7 @@ export default function PowerWash({ soundEnabled, onProgress }: Props) {
       {/* Particle overlay */}
       <canvas
         ref={overlayRef}
-        className="absolute inset-0 w-full pointer-events-none"
-        style={{ aspectRatio: '4/3' }}
+        className="absolute inset-0 w-full h-full pointer-events-none"
       />
 
       {/* Completion message */}

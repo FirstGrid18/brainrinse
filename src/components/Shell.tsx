@@ -42,10 +42,10 @@ export default function Shell({ lightMode, onToggleLight }: Props) {
         transition: 'background 0.3s, color 0.3s',
       }}
     >
-      {/* Canvas area */}
-      <div className="relative w-full" style={{ flex: '1 1 auto' }}>
+      {/* Canvas area — fixed 72vh so scene fits and shelf shows below */}
+      <div className="relative w-full" style={{ height: '72vh' }}>
         {/* Game canvas */}
-        <div className="relative w-full">
+        <div className="relative w-full h-full">
           <PowerWash soundEnabled={soundEnabled} onProgress={handleProgress} />
 
           {/* Wordmark — overlaid top-left */}
