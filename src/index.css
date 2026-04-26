@@ -22,3 +22,9 @@ body {
 body.light {
   background: #f0e6d6;
 }
+
+@keyframes gridPulse {
+  0%, 100% { opacity: 0.62; }
+  40%       { opacity: 1.0;  }
+  70%       { opacity: 0.72; }
+}

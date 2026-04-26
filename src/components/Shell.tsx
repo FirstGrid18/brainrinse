@@ -12,8 +12,10 @@ const GAMES = [
   { id: 'tide',      label: 'TIDE',        free: false, bg: '#081418' },
 ]
 
+const STAGGER = 0.48
+
 // Small checkerboard grid used inside the floating trigger
-function MiniGrid({ lightMode }: { lightMode: boolean }) {
+function MiniGrid({ lightMode, paused }: { lightMode: boolean; paused: boolean }) {
   return (
     <div style={{
       display: 'grid',
@@ -25,6 +27,7 @@ function MiniGrid({ lightMode }: { lightMode: boolean }) {
         const row = Math.floor(i / 3)
         const col = i % 3
         const isTerracotta = (row + col) % 2 === 0
+        const delay = (row + col) * STAGGER
         return (
           <div key={i} style={{
             width: 5,
@@ -32,6 +35,8 @@ function MiniGrid({ lightMode }: { lightMode: boolean }) {
             background: isTerracotta
               ? '#b84828'
               : lightMode ? 'rgba(24,12,4,0.45)' : 'rgba(237,226,206,0.55)',
+            animation: `gridPulse 2.4s ease-in-out ${delay}s infinite`,
+            animationPlayState: paused ? 'paused' : 'running',
           }} />
         )
       })}
@@ -51,6 +56,7 @@ export default function Shell({ lightMode, onToggleLight }: Props) {
   const [showUnlock, setShowUnlock] = useState(false)
   const [shelfHidden, setShelfHidden] = useState(false)
   const [showGameRow, setShowGameRow] = useState(false)
+  const [isPlaying, setIsPlaying] = useState(false)
   const shelfTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const handleProgress = useCallback((pct: number) => setProgress(pct), [])
@@ -58,11 +64,13 @@ export default function Shell({ lightMode, onToggleLight }: Props) {
   const handlePlayStart = useCallback(() => {
     if (shelfTimer.current) clearTimeout(shelfTimer.current)
     setShelfHidden(true)
+    setIsPlaying(true)
   }, [])
 
   const handlePlayEnd = useCallback(() => {
     if (shelfTimer.current) clearTimeout(shelfTimer.current)
     shelfTimer.current = setTimeout(() => setShelfHidden(false), 2000)
+    setIsPlaying(false)
   }, [])
 
   const cream = 'rgba(237,226,206,0.88)'
@@ -96,7 +104,7 @@ export default function Shell({ lightMode, onToggleLight }: Props) {
             className="absolute select-none pointer-events-none"
             style={{ top: 14, left: 16 }}
           >
-            <Wordmark lightMode={lightMode} />
+            <Wordmark lightMode={lightMode} paused={isPlaying} />
           </div>
 
           {/* Controls — top right */}
@@ -304,7 +312,7 @@ export default function Shell({ lightMode, onToggleLight }: Props) {
           gap: 10,
         }}
       >
-        <MiniGrid lightMode={lightMode} />
+        <MiniGrid lightMode={lightMode} paused={isPlaying} />
         <span style={{
           color: 'rgba(237,226,206,0.45)',
           fontSize: 12,
