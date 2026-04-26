@@ -6,7 +6,6 @@ interface Props {
   onProgress: (pct: number) => void
 }
 
-const MAX_WIDTH = 800
 const RATIO = 3 / 4
 
 function archPath(ctx: CanvasRenderingContext2D, archX: number, archBaseY: number, archRadius: number, archW: number, h: number) {
@@ -466,8 +465,7 @@ export default function PowerWash({ soundEnabled, onProgress }: Props) {
     const overlay = overlayRef.current
     if (!container || !scene || !grime || !overlay) return
 
-    const maxW = Math.min(container.clientWidth, MAX_WIDTH)
-    const w = maxW
+    const w = container.clientWidth
     const h = Math.round(w * RATIO)
 
     ;[scene, grime, overlay].forEach(c => {
@@ -555,15 +553,15 @@ export default function PowerWash({ soundEnabled, onProgress }: Props) {
   }, [playChime, soundEnabled])
 
   return (
-    <div ref={containerRef} className="relative w-full flex justify-center" style={{ maxWidth: MAX_WIDTH }}>
+    <div ref={containerRef} className="relative w-full">
       {/* Scene canvas */}
-      <canvas ref={sceneRef} className="block w-full" style={{ maxWidth: MAX_WIDTH, aspectRatio: '4/3' }} />
+      <canvas ref={sceneRef} className="block w-full" style={{ aspectRatio: '4/3' }} />
 
       {/* Grime canvas — layered on top, handles interaction */}
       <canvas
         ref={grimeRef}
         className="absolute inset-0 w-full cursor-crosshair touch-none"
-        style={{ maxWidth: MAX_WIDTH, aspectRatio: '4/3' }}
+        style={{ aspectRatio: '4/3' }}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
@@ -574,7 +572,7 @@ export default function PowerWash({ soundEnabled, onProgress }: Props) {
       <canvas
         ref={overlayRef}
         className="absolute inset-0 w-full pointer-events-none"
-        style={{ maxWidth: MAX_WIDTH, aspectRatio: '4/3' }}
+        style={{ aspectRatio: '4/3' }}
       />
 
       {/* Completion message */}

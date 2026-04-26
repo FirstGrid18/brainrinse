@@ -43,9 +43,9 @@ export default function Shell({ lightMode, onToggleLight }: Props) {
       }}
     >
       {/* Canvas area */}
-      <div className="relative flex justify-center w-full" style={{ flex: '1 1 auto' }}>
+      <div className="relative w-full" style={{ flex: '1 1 auto' }}>
         {/* Game canvas */}
-        <div className="relative w-full flex justify-center" style={{ maxWidth: 800 }}>
+        <div className="relative w-full">
           <PowerWash soundEnabled={soundEnabled} onProgress={handleProgress} />
 
           {/* Wordmark — overlaid top-left */}
@@ -115,12 +115,12 @@ export default function Shell({ lightMode, onToggleLight }: Props) {
       {/* Shelf */}
       <div
         style={{
-          background: lightMode ? '#e8d4bc' : '#0a0604',
+          background: lightMode ? '#f0e6d6' : '#0c0806',
           borderTop: `1px solid ${lightMode ? 'rgba(0,0,0,0.08)' : 'rgba(237,226,206,0.08)'}`,
         }}
       >
         {/* Stats row */}
-        <div className="flex items-center justify-between px-4 py-3" style={{ maxWidth: 800, margin: '0 auto' }}>
+        <div className="flex items-center justify-between px-4 py-3">
           <div
             style={{
               fontSize: 'clamp(2rem, 8vw, 3rem)',
@@ -158,8 +158,6 @@ export default function Shell({ lightMode, onToggleLight }: Props) {
         <div
           className="flex overflow-x-auto"
           style={{
-            maxWidth: 800,
-            margin: '0 auto',
             borderTop: `1px solid ${lightMode ? 'rgba(0,0,0,0.06)' : 'rgba(237,226,206,0.06)'}`,
           }}
         >
@@ -195,9 +193,6 @@ export default function Shell({ lightMode, onToggleLight }: Props) {
                   transition: 'color 0.2s, border-color 0.2s',
                 }}
               >
-                {!game.free && (
-                  <span style={{ marginRight: 3, fontSize: '0.9em', opacity: 0.5 }}>🔒</span>
-                )}
                 {game.label}
               </button>
             )
