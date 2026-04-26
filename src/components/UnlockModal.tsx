@@ -46,24 +46,24 @@ export default function UnlockModal({ onClose }: Props) {
         }}
       >
         {/* Headline */}
-        <div style={{ fontSize: 'clamp(1.4rem, 5vw, 2rem)', fontWeight: 300, letterSpacing: '0.04em', marginBottom: 8 }}>
+        <div style={{ fontSize: 44, fontWeight: 300, letterSpacing: '0.04em', lineHeight: 1.1, marginBottom: 8 }}>
           More to still the mind.
         </div>
-        <div style={{ fontSize: '0.85rem', opacity: 0.55, letterSpacing: '0.12em', marginBottom: 28 }}>
+        <div style={{ fontSize: 13, opacity: 0.55, letterSpacing: '0.22em', marginBottom: 28 }}>
           ALL 6 GAMES · CANCEL ANYTIME
         </div>
 
         {/* Game list */}
         <ul style={{ listStyle: 'none', marginBottom: 28, display: 'flex', flexDirection: 'column', gap: 8 }}>
           {GAMES.map((g, i) => (
-            <li key={g} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: '0.95rem', opacity: i === 0 ? 0.45 : 1 }}>
+            <li key={g} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 20, fontWeight: 300, opacity: i === 0 ? 0.45 : 1 }}>
               <span style={{
                 width: 6, height: 6, borderRadius: '50%',
                 background: i === 0 ? 'rgba(237,226,206,0.3)' : terracotta,
                 flexShrink: 0,
               }} />
               {g}
-              {i === 0 && <span style={{ fontSize: '0.7rem', opacity: 0.5, marginLeft: 4 }}>free</span>}
+              {i === 0 && <span style={{ fontSize: 14, opacity: 0.5, marginLeft: 4 }}>free</span>}
             </li>
           ))}
         </ul>
@@ -89,16 +89,17 @@ export default function UnlockModal({ onClose }: Props) {
                 background: yearly === isYearly ? 'rgba(184,72,40,0.85)' : 'transparent',
                 color: 'rgba(237,226,206,0.88)',
                 fontFamily: "'Cormorant Garamond', serif",
-                fontSize: '0.88rem',
+                fontSize: 22,
+                fontWeight: 300,
                 cursor: 'pointer',
                 letterSpacing: '0.08em',
                 transition: 'background 0.2s',
               }}
             >
-              {isYearly ? '£36 / year' : '£3.99 / month'}
+              {isYearly ? '$36 / year' : '$3.99 / month'}
               {isYearly && (
-                <span style={{ display: 'block', fontSize: '0.65rem', opacity: 0.7, marginTop: 1 }}>
-                  saves £12
+                <span style={{ display: 'block', fontSize: 13, opacity: 0.7, marginTop: 1 }}>
+                  saves $12
                 </span>
               )}
             </button>
@@ -110,16 +111,17 @@ export default function UnlockModal({ onClose }: Props) {
           onClick={onClose}
           style={{
             width: '100%',
-            padding: '13px',
             background: terracotta,
             border: 'none',
             borderRadius: 5,
             color: 'rgba(237,226,206,0.95)',
             fontFamily: "'Cormorant Garamond', serif",
-            fontSize: '0.95rem',
+            fontSize: 16,
+            fontWeight: 400,
             letterSpacing: '0.16em',
             textTransform: 'uppercase',
             cursor: 'pointer',
+            padding: '18px 40px',
             marginBottom: 10,
           }}
         >
@@ -135,7 +137,7 @@ export default function UnlockModal({ onClose }: Props) {
             border: 'none',
             color: 'rgba(237,226,206,0.35)',
             fontFamily: "'Cormorant Garamond', serif",
-            fontSize: '0.82rem',
+            fontSize: 14,
             letterSpacing: '0.14em',
             cursor: 'pointer',
           }}

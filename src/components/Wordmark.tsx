@@ -60,14 +60,14 @@ export default function Wordmark({ lightMode, paused = false, onGridClick, size 
       <div style={{ lineHeight: 1, whiteSpace: 'nowrap', userSelect: 'none', pointerEvents: 'none' }}>
         <span style={{
           fontFamily: "'Cormorant Garamond', serif",
-          fontSize: 28,
+          fontSize: 26,
           fontWeight: 400,
           color: lightMode ? 'rgba(24,12,4,0.86)' : 'rgba(237,226,206,0.88)',
           letterSpacing: '0.02em',
         }}>brain </span>
         <em style={{
           fontFamily: "'Cormorant Garamond', serif",
-          fontSize: 28,
+          fontSize: 26,
           fontWeight: 500,
           fontStyle: 'italic',
           color: '#b84828',

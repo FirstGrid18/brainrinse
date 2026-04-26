@@ -43,11 +43,11 @@ export default function Shell({ lightMode, onToggleLight }: Props) {
         background: 'transparent',
         border: `1px solid ${terracotta}`,
         borderRadius: 20,
-        padding: '6px 14px',
+        padding: '8px 16px',
         color: 'rgba(237,226,206,0.8)',
         cursor: 'pointer',
         fontFamily: "'Cormorant Garamond', serif",
-        fontSize: 11,
+        fontSize: 13,
         letterSpacing: '0.14em',
         textTransform: 'uppercase' as const,
         lineHeight: 1,
@@ -73,8 +73,8 @@ export default function Shell({ lightMode, onToggleLight }: Props) {
           }
         }}
         style={{
-          width: 130,
-          height: 90,
+          width: 150,
+          height: 100,
           borderRadius: 10,
           background: game.bg,
           border: `1px solid ${isActive ? terracotta : 'rgba(237,226,206,0.07)'}`,
@@ -91,8 +91,9 @@ export default function Shell({ lightMode, onToggleLight }: Props) {
       >
         <div style={{
           fontFamily: "'Cormorant Garamond', serif",
-          fontSize: 15,
-          letterSpacing: '0.1em',
+          fontSize: 18,
+          fontWeight: 400,
+          letterSpacing: '0.06em',
           color: 'rgba(237,226,206,0.82)',
           textTransform: 'uppercase',
           textAlign: 'center',
@@ -103,7 +104,7 @@ export default function Shell({ lightMode, onToggleLight }: Props) {
         {game.free ? (
           <div style={{
             fontFamily: "'Cormorant Garamond', serif",
-            fontSize: 11,
+            fontSize: 13,
             fontWeight: 500,
             color: '#4a8068',
             letterSpacing: '0.14em',
@@ -114,7 +115,7 @@ export default function Shell({ lightMode, onToggleLight }: Props) {
         ) : (
           <div style={{
             fontFamily: "'Cormorant Garamond', serif",
-            fontSize: 11,
+            fontSize: 13,
             color: 'rgba(237,226,206,0.28)',
             letterSpacing: '0.12em',
             textTransform: 'uppercase',
@@ -177,7 +178,7 @@ export default function Shell({ lightMode, onToggleLight }: Props) {
               position: 'absolute',
               bottom: 0,
               left: 0,
-              height: 2,
+              height: 3,
               width: `${progress * 100}%`,
               background: terracotta,
               transition: 'width 0.2s linear',
